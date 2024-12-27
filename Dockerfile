@@ -1,24 +1,27 @@
 
-FROM python:3.9-slim as builder
-
-RUN apt-get update && apt-get install -y --no-install-recommends git
+FROM openjdk:17-slim AS build
 
 
 WORKDIR /app
-RUN git clone https://github.com/Torus211/7.git .
 
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y git
 
 
-FROM python:3.9-slim
+RUN git clone https://github.com/Torus211/ShellOnJava.git .
+
+
+RUN javac Shell.java
+
+
+FROM openjdk:17-slim
 
 
 WORKDIR /app
-COPY --from=builder /app /app
 
 
-RUN pip install --no-cache-dir -r requirements.txt --no-deps
+COPY --from=build /app/Shell.class .
 
 
-CMD ["python", "app.py"]
+ENTRYPOINT ["java", "Shell"]
+
